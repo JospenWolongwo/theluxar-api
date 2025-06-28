@@ -1,0 +1,75 @@
+{{#extend "main"}}
+  {{#content "body"}}
+    <div class="auth-form">
+      <div class="auth-header">
+        <img src="{{header.logoUrl}}" alt="Logo" class="auth-logo">
+        <h2>{{title}}</h2>
+        <p>{{subtitle}}</p>
+      </div>
+
+      <div class="auth-message">
+        <p style="text-align: center;">{{message}}</p>
+      </div>
+
+      {{#if (eq type 'signup')}}
+        <!-- Signup-specific content -->
+        <div class="auth-footer">
+          <p>If you haven't received the activation email, please check your spam folder or 
+            <form action="{{resendUrl}}" method="POST" class="inline-form">
+              <input type="hidden" name="email" value="{{email}}">
+              <input type="hidden" name="_csrf" value="{{csrf}}">
+              <button type="submit" class="resend-mail-btn">Request another email</button>
+            </form>
+          </p>
+          <p>Ready to login? <a href="{{loginUrl}}" class="text-link">Go to login page</a></p>
+        </div>
+      {{else if (eq type 'activation')}}
+        <!-- Activation-specific content -->
+        <div class="auth-footer">
+          <p>Your account is now active. <a href="{{loginUrl}}" class="text-link">Go to login page</a></p>
+        </div>
+      {{else if (eq type 'resend')}}
+        <!-- Resend-specific content -->
+        <div class="auth-footer">
+          <p>Didn't receive the email? 
+            <form action="{{resendUrl}}" method="POST" class="inline-form">
+              <input type="hidden" name="email" value="{{email}}">
+              <input type="hidden" name="_csrf" value="{{csrf}}">
+              <button type="submit" class="resend-mail-btn">Resend again</button>
+            </form>
+          </p>
+          <p>Need help? <a href="{{loginUrl}}" class="text-link">Contact support</a></p>
+        </div>
+        {{else if (eq type 'password-reset')}}
+        <!-- Password reset-specific content -->
+        <div class="auth-footer">
+          <p>Didn't receive the email? 
+            <form action="{{resendUrl}}" method="POST" class="inline-form">
+              <input type="hidden" name="email" value="{{email}}">
+              <input type="hidden" name="_csrf" value="{{csrf}}">
+              <button type="submit" class="resend-mail-btn">Resend email</button>
+            </form>
+          </p>
+          <p>Back to <a href="{{loginUrl}}" class="text-link">login page</a></p>
+        </div>
+        {{else if (eq type 'password-reset-success')}}
+        <!-- Password reset success-specific content -->
+        <div class="auth-footer">
+          <p>Your password has been reset successfully. <a href="{{loginUrl}}" class="text-link">Go to login page</a></p>
+        </div>
+        {{else}}
+        <!-- Error-specific content -->
+        <div class="auth-footer">
+          <p>Try again? 
+            <form action="{{resendUrl}}" method="POST" class="inline-form">
+              <input type="hidden" name="email" value="{{email}}">
+              <input type="hidden" name="_csrf" value="{{csrf}}">
+              <button type="submit" class="resend-mail-btn">Retry</button>
+            </form>
+          </p>
+          <p>Back to <a href="{{loginUrl}}" class="text-link">signup page</a></p>
+        </div>
+      {{/if}}
+    </div>
+  {{/content}}
+{{/extend}}

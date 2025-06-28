@@ -1,0 +1,43 @@
+{{#extend "main"}}
+  {{#content "body"}}
+    <div class="auth-form">
+      <div class="auth-header">
+        <img src="{{header.logoUrl}}" alt="Logo" class="auth-logo">
+        <h2>{{title}}</h2>
+      </div>
+
+      <div class="token-display">
+        <div class="token-section">
+          <h3>Access Token</h3>
+          <div class="token-container">
+            <pre class="token"><code>{{tokens.accessToken}}</code></pre>
+            <button class="copy-button" data-token="access">
+              <svg class="copy-icon" viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="token-section">
+          <h3>Refresh Token</h3>
+          <div class="token-container">
+            <pre class="token"><code>{{tokens.refreshToken}}</code></pre>
+            <button class="copy-button" data-token="refresh">
+              <svg class="copy-icon" viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-footer">
+        <p>These tokens have been automatically set in your cookies.</p>
+        <p>You can now close this page or <a href="/" class="text-link">return to home</a>.</p>
+      </div>
+    </div>
+  {{/content}}
+{{/extend}}

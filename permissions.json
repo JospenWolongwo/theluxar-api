@@ -1,0 +1,9 @@
+{
+  "helloHardware": {
+    "user": ["ReadUsers", "CreateUser", "UpdateUser", "DeleteUser"],
+    "permission": ["AddPermissions", "RevokePermissions"]
+  },
+  "hermes": {},
+  "visitCard": {},
+  "helloBeauty": {}
+}

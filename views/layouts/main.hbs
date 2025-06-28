@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}} | TheLuxar - Luxury Shopping Redefined</title>
+    <meta name="description" content="TheLuxar - Experience premium shopping with curated luxury products, exceptional quality, and unparalleled service.">
+  <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" sizes="any">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <link rel="manifest" href="/images/site.webmanifest">
+  <meta name="theme-color" content="#e8b4a6">
+  <meta name="keywords" content="luxury shopping, premium products, exclusive collection, high-end brands, TheLuxar">
+  <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/images/web-app-manifest-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/images/web-app-manifest-512x512.png">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    {{> header header}}
+    <main class="container">
+        {{{block "body"}}}
+    </main>
+    {{> footer}}
+    <script>
+        window.RECAPTCHA_SITE_KEY = "{{key}}";
+    </script>
+    <script>
+        window.baseUrl = '{{baseUrl}}';
+    </script>
+     <script src="https://www.google.com/recaptcha/api.js?render={{key}}"></script>
+    <script src="/js/formValidation.js" defer></script>
+</body>
+</html>

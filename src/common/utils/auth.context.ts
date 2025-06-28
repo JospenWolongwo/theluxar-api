@@ -181,7 +181,7 @@ export const resetPasswordContext = (
 
 export const headerContext = (activePage: string) => {
   return {
-    logoUrl: '/images/hello-identity-logo.svg',
+    logoUrl: '/images/theluxar-api-logo.svg',
     navLinks: [
       { url: '/auth/login', text: 'Login', active: activePage === 'login' },
       { url: '/auth/signup', text: 'Signup', active: activePage === 'signup' },

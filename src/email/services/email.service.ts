@@ -29,7 +29,7 @@ export class EmailService {
         Messages: [
           {
             From: {
-              Name: process.env.MAIL_SENDER_NAME || 'Hello Identity',
+              Name: process.env.MAIL_SENDER_NAME || 'TheLuxar API',
               Email: process.env.MAIL_SENDER,
             },
             To: [{ Email: email }],
@@ -63,7 +63,7 @@ export class EmailService {
         Messages: [
           {
             From: {
-              Name: process.env.MAIL_SENDER_NAME || 'Hello Identity',
+              Name: process.env.MAIL_SENDER_NAME || 'TheLuxar API',
               Email: process.env.MAIL_SENDER,
             },
             To: [{ Email: email }],

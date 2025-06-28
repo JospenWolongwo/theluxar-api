@@ -1,10 +1,10 @@
 import { MAIN_URL } from '../../common/utils/auth.context';
 
 export const passwordResetTemplate = {
-  subject: `Hello Identity: Password Reset`,
+  subject: `TheLuxar API: Password Reset`,
   text: function (token: string, redirect?: string) {
     const redirectToken = redirect ? '&redirect=' + redirect : '';
-    return `You requested a password reset for your Hello Identity account.
+    return `You requested a password reset for your TheLuxar API account.
             Use the link below to reset your password.
             ${MAIN_URL}/auth/reset-password?token=${token}${redirectToken}
             If you didn't request this, please ignore this email.
@@ -42,7 +42,7 @@ export const passwordResetTemplate = {
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
-          &copy; 2025 Hello Identity. All rights reserved.
+          &copy; 2025 TheLuxar API. All rights reserved.
         </div>
       </div>
     `;
