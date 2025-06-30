@@ -16,16 +16,18 @@ body {
   flex-direction: column;
 }
 
-input[type="hidden"] {
+input[type='hidden'] {
   display: none !important;
 }
 
 /* Header and Navigation */
 header {
   background: linear-gradient(135deg, #e8b4a6 0%, #f5e6d3 100%);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.5rem 0;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -136,8 +138,12 @@ header {
 }
 
 @keyframes underlineSlide {
-  from { width: 0 }
-  to { width: 70% }
+  from {
+    width: 0;
+  }
+  to {
+    width: 70%;
+  }
 }
 
 /* Accessibility improvements */
@@ -145,7 +151,6 @@ header {
   outline: 2px solid white;
   outline-offset: 2px;
 }
-
 
 /* Mobile Menu Hamburger */
 .hamburger {
@@ -167,18 +172,22 @@ header {
   transition: all 0.3s ease;
 }
 
-.hamburger::before { top: -8px }
-.hamburger::after { bottom: -8px }
+.hamburger::before {
+  top: -8px;
+}
+.hamburger::after {
+  bottom: -8px;
+}
 
-.menu-toggle[aria-expanded="true"] .hamburger {
+.menu-toggle[aria-expanded='true'] .hamburger {
   background: transparent;
 }
 
-.menu-toggle[aria-expanded="true"] .hamburger::before {
+.menu-toggle[aria-expanded='true'] .hamburger::before {
   transform: rotate(45deg) translate(5px, 5px);
 }
 
-.menu-toggle[aria-expanded="true"] .hamburger::after {
+.menu-toggle[aria-expanded='true'] .hamburger::after {
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
@@ -201,7 +210,7 @@ main {
   max-width: 440px;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
   padding: 40px;
   margin: 2rem auto;
 }
@@ -290,7 +299,7 @@ main {
   display: none;
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: #fff;
   animation: spin 0.8s linear infinite;
@@ -301,7 +310,9 @@ main {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading .btn-content {
@@ -363,12 +374,12 @@ main {
   display: block;
 }
 
-.invalid:not([type="hidden"]) {
+.invalid:not([type='hidden']) {
   border-color: #dc2626 !important;
   background-color: #fef2f2 !important;
 }
 
-.invalid:not([type="hidden"]):focus {
+.invalid:not([type='hidden']):focus {
   border-color: #dc2626 !important;
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
 }
@@ -402,7 +413,7 @@ button:disabled {
 }
 
 .btn-primary:hover {
-  background-color: #0A0A0A;
+  background-color: #0a0a0a;
   transform: translateY(-1px);
 }
 
@@ -411,7 +422,7 @@ button:disabled {
 }
 
 .btn-primary:disabled {
-  background-color: #80bfff;
+  background-color: #0a0a0a;
 }
 
 /* Password Input Container */
@@ -436,12 +447,12 @@ button:disabled {
 }
 
 .password-toggle:hover {
-  color: #007BFF;
+  color: #e8b4a6;
 }
 
 /* Hide the default browser toggle */
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
   display: none;
 }
 
@@ -470,7 +481,8 @@ input[type="password"]::-ms-clear {
   margin-top: 1.5rem;
 }
 
-.btn-google, .btn-github {
+.btn-google,
+.btn-github {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -496,7 +508,6 @@ input[type="password"]::-ms-clear {
   background-color: #24292e; /* GitHub's dark color */
   color: #fff;
 }
-
 
 .btn-github:hover {
   background-color: #1b1f23;
@@ -529,7 +540,7 @@ input[type="password"]::-ms-clear {
   top: 0;
   padding: 1rem;
   background: white;
-  color: #0066cc;
+  color: #e8b4a6;
   z-index: 1001;
 }
 
@@ -605,7 +616,7 @@ input[type="password"]::-ms-clear {
   font-size: 14px;
   font-weight: 500;
   color: #fff;
-  background-color: #007bff;
+  background-color: #e8b4a6;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -614,11 +625,11 @@ input[type="password"]::-ms-clear {
 }
 
 .resend-mail-btn:hover {
-  background-color: #0A0A0A;
+  background-color: #0a0a0a;
 }
 
 .resend-mail-btn:active {
-  background-color: #004080;
+  background-color: #e8b4a6;
 }
 
 /* Responsive adjustments */
@@ -646,7 +657,7 @@ input[type="password"]::-ms-clear {
     display: flex;
   }
 
-   .nav-link {
+  .nav-link {
     width: 100%;
     justify-content: center;
     padding: 1rem;

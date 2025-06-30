@@ -1,0 +1,14 @@
+export enum ProductLabel {
+  SALE = 'SALE',
+  NOUVEAU = 'NOUVEAU',
+  SOLDE = 'SOLDE',
+  PROMO = 'PROMO',
+  OFF_25 = '-25% OFF',
+  BESTSELLER = 'BESTSELLER',
+  LUXURY = 'LUXURY',
+  NEW = 'NEW',
+  SIGNATURE = 'SIGNATURE',
+  LIMITED = 'LIMITED',
+  EXCLUSIVE = 'EXCLUSIVE',
+  PREMIUM = 'PREMIUM',
+}
