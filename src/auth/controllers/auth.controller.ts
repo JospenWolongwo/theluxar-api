@@ -42,24 +42,37 @@ interface RequestWithCsrf extends Request {
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {}
 
   private readonly logger = new Logger(AuthController.name);
 
   private redirectUrl(redirect: string) {
+    this.logger.debug(`Parsing redirect URL: ${redirect}`);
+    this.logger.debug(`Using CLIENT_DELIMITER: ${process.env.CLIENT_DELIMITER}`);
+    this.logger.debug(`CLIENTS config: ${process.env.CLIENTS}`);
+    
     const split = redirect.split(<string>process.env.CLIENT_DELIMITER);
+    this.logger.debug(`Split result: [${split.join(', ')}], length: ${split.length}`);
 
     const clients: Record<string, string> = JSON.parse(
       <string>process.env.CLIENTS,
     );
+    this.logger.debug(`Parsed clients: ${JSON.stringify(clients)}`);
 
     if (split.length === 2) {
       if (split[0] in clients) {
-        return clients[split[0]] + split[1];
+        const result = clients[split[0]] + split[1];
+        this.logger.debug(`Valid redirect URL found. Redirecting to: ${result}`);
+        return result;
+      } else {
+        this.logger.debug(`Client name '${split[0]}' not found in clients config`);
       }
+    } else {
+      this.logger.debug(`Invalid split length: ${split.length}, expected 2 parts`);
     }
 
+    this.logger.debug('No valid redirect URL found, returning null');
     return null;
   }
 
@@ -77,7 +90,10 @@ export class AuthController {
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax' | 'strict',
+      sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as
+        | 'none'
+        | 'lax'
+        | 'strict',
     };
 
     return res
@@ -330,14 +346,30 @@ export class AuthController {
   ) {
     try {
       const user = req.user;
+      this.logger.debug(`Login successful for user ID: ${user.id}`);
+      this.logger.debug(`Redirect parameter received: ${redirect}`);
+      
       const tokens = await this.authService.login(user.id);
+      this.logger.debug('Tokens generated successfully');
 
       if (redirect?.length) {
+        this.logger.debug(`Redirect parameter is present: ${redirect}`);
         const redirectUrl = this.redirectUrl(redirect);
+        this.logger.debug(`Resolved redirect URL: ${redirectUrl || 'null'}`);
+        
         if (redirectUrl) {
+          this.logger.debug(`Setting cookies and returning redirect URL: ${redirectUrl}`);
           this.setTokenCookies(res, tokens);
-          return res.redirect(redirectUrl);
+          // Instead of redirect, send JSON response with redirect URL
+          return res.status(200).json({
+            success: true,
+            redirectUrl: redirectUrl
+          });
+        } else {
+          this.logger.debug('Invalid redirect URL, falling back to token display');
         }
+      } else {
+        this.logger.debug('No redirect parameter found, rendering token display view');
       }
 
       this.setTokenCookies(res, tokens);
@@ -537,25 +569,28 @@ export class AuthController {
         await this.jwtService.verifyAsync(refreshToken, {
           secret: process.env.JWT_SECRET,
         });
-        
+
         // If valid, generate new tokens
         const tokens = await this.authService.refreshTokens(refreshToken);
         this.setTokenCookies(res, tokens);
-        
+
         // Return tokens in response (for non-browser clients)
-        return res.status(200).json({ 
+        return res.status(200).json({
           message: 'Token refreshed successfully',
-          accessToken: tokens.accessToken, 
-          refreshToken: tokens.refreshToken 
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
         });
       } catch (error) {
         this.logger.error(`Token refresh failed: ${error.message}`);
-        
+
         // Token is invalid or expired - clear cookies
         const cookieOptions = {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax' | 'strict',
+          sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as
+            | 'none'
+            | 'lax'
+            | 'strict',
         };
         res.clearCookie('BAL_ess', cookieOptions);
         res.clearCookie('BAL_esh', cookieOptions);
@@ -581,13 +616,16 @@ export class AuthController {
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as 'none' | 'lax' | 'strict',
+        sameSite: (process.env.NODE_ENV === 'production' ? 'none' : 'lax') as
+          | 'none'
+          | 'lax'
+          | 'strict',
       };
-      
+
       // Clear all authentication cookies
       res.clearCookie('BAL_ess', cookieOptions);
       res.clearCookie('BAL_esh', cookieOptions);
-      
+
       return res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
       this.logger.error(

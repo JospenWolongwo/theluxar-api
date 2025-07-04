@@ -1,13 +1,13 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
   UseGuards,
-  Query 
+  Query,
 } from '@nestjs/common';
 import { ReviewService } from '../services/review.service';
 import { CreateReviewDto } from '../dto/create-review.dto';
@@ -22,7 +22,7 @@ import {
   ApiFindReviewsByUser,
   ApiRemoveReview,
   ApiUpdateReview,
-  ApiUpdateReviewHelpfulness
+  ApiUpdateReviewHelpfulness,
 } from '../swagger/review-swagger.decorators';
 import { Roles } from '../../auth/decorators/roles.decorator';
 
@@ -76,7 +76,10 @@ export class ReviewController {
 
   @Patch(':id/helpfulness')
   @ApiUpdateReviewHelpfulness()
-  updateHelpfulness(@Param('id') id: string, @Query('helpful') helpful: boolean) {
+  updateHelpfulness(
+    @Param('id') id: string,
+    @Query('helpful') helpful: boolean,
+  ) {
     return this.reviewService.updateHelpfulness(id, helpful);
   }
 

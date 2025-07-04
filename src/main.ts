@@ -35,6 +35,22 @@ async function bootstrap() {
   const SITE_DOMAIN = process.env.SITE_DOMAIN || 'http://localhost';
   const baseUrl = `${SITE_DOMAIN}:${PORT}`;
 
+  // Configure CORS for cross-origin requests with credentials
+  const clientsStr = process.env.CLIENTS || '{}';
+  const clients: Record<string, string> = JSON.parse(clientsStr);
+  const allowedOrigins = Object.values(clients);
+  if (!allowedOrigins.includes('http://localhost:4200')) {
+    allowedOrigins.push('http://localhost:4200'); // Add Angular dev server as fallback
+  }
+
+  console.log('CORS configured with origins:', allowedOrigins);
+
+  app.enableCors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true, // Important! This allows cookies to be included in cross-origin requests
+  });
+
   // Middleware setup - Order is important!
   app.use(cookieParser());
   app.use(nestCsrf());

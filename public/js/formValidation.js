@@ -396,8 +396,9 @@ const FormSubmissionMixin = {
       }
 
       const data = await response.json();
-      if (data && data.redirect) {
-        window.location.href = data.redirect;
+      // Handle both old format (data.redirect) and new format (data.redirectUrl)
+      if (data && (data.redirect || data.redirectUrl)) {
+        window.location.href = data.redirectUrl || data.redirect;
       }
     } catch (error) {
       if (!error.status) {
