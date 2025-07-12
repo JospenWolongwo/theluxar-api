@@ -56,15 +56,34 @@ async function bootstrap() {
   app.use(nestCsrf());
 
   // View engine setup
-  const viewsPath = join(__dirname, '..', 'views');
-  app.setBaseViewsDir(viewsPath);
+  // Check if we're in development or production mode
+  // In dev mode, views are in the project root; in prod they're copied to dist
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  let viewsPaths;
+  
+  if (isDevelopment) {
+    // Check both locations - project root views and dist/views
+    const projectRootViewsPath = join(process.cwd(), 'views');
+    const distViewsPath = join(__dirname, '..', 'views');
+    
+    // Use both paths - NestJS will check each path in order until it finds the template
+    viewsPaths = [projectRootViewsPath, distViewsPath];
+    console.log('Views directories:', viewsPaths);
+  } else {
+    // In production, just use the dist/views path
+    viewsPaths = join(__dirname, '..', 'views');
+  }
+  
+  app.setBaseViewsDir(viewsPaths);
   app.setViewEngine('hbs');
 
   // Register Handlebars helpers
   hbs.registerHelper('extend', function (name, options) {
     const contextWithBlocks = { ...this, blocks: {} };
     options.fn(contextWithBlocks); // Process inner content
-    const layoutPath = path.join(viewsPath, 'layouts', `${name}.hbs`);
+    // In dev mode with an array of paths, we use the first path (project root views)
+    const layoutsPath = Array.isArray(viewsPaths) ? path.join(viewsPaths[0], 'layouts') : path.join(viewsPaths, 'layouts');
+    const layoutPath = path.join(layoutsPath, `${name}.hbs`);
     const layout = fs.readFileSync(layoutPath, 'utf8');
     const template = hbs.handlebars.compile(layout);
     const output = template(contextWithBlocks);
@@ -86,7 +105,8 @@ async function bootstrap() {
   });
 
   // Register partials from views/partials directory
-  const partialsPath = join(viewsPath, 'partials');
+  // In dev mode with an array of paths, we use the first path (project root views)
+  const partialsPath = Array.isArray(viewsPaths) ? join(viewsPaths[0], 'partials') : join(viewsPaths, 'partials');
   if (fs.existsSync(partialsPath)) {
     registerPartialsRecursively(partialsPath);
   }

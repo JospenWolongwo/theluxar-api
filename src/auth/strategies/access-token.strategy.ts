@@ -57,6 +57,8 @@ export class AccessTokenStrategy extends PassportStrategy(
           createdAt: account.createdAt,
           lastLogin: account.lastLogin,
           permissions: userPermissions?.permissions || [],
+          // Add roles property that maps directly from permissions for RolesGuard
+          roles: userPermissions?.permissions || [],
         };
 
         // Cache the account information

@@ -3,7 +3,7 @@ import type { Request } from 'express';
 
 export const pinoConfig = (): Params => ({
   pinoHttp: {
-    name: 'Hello Identity',
+    name: 'theluxar',
     transport: {
       target: 'pino-pretty',
       options: {

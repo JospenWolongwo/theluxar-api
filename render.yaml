@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: theluxar-api
+    env: node
+    buildCommand: npm ci && npm run build
+    startCommand: node dist/main.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        sync: false # You'll need to manually set this to your Neon DB host
+      - key: DB_PORT
+        value: 5432
+      - key: DB_USER
+        sync: false # You'll need to manually set this
+      - key: DB_PASSWORD
+        sync: false # You'll need to manually set this
+      - key: DB_NAME
+        sync: false # You'll need to manually set this
+      - key: REDIS_HOST
+        sync: false # Optional: Set if using Redis on Render
+      - key: REDIS_PORT
+        value: 6379 # Default Redis port
+      - key: FIRST_RUN_COMPLETE
+        sync: false # This will be used to track if seeding has been run
+    healthCheckPath: /api/health # Make sure you have a health check endpoint
+    autoDeploy: true # Deploy on push

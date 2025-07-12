@@ -1,10 +1,10 @@
-# Hello Identity
+# theluxar
 
 A scalable authentication service built with NestJS
 
 ## Description
 
-Hello Identity is a comprehensive authentication service designed to provide secure user authentication and identity management features. It's built on NestJS and offers a robust set of authentication capabilities including local authentication, social logins, email verification, and token management.
+theluxar is a comprehensive authentication service designed to provide secure user authentication and identity management features. It's built on NestJS and offers a robust set of authentication capabilities including local authentication, social logins, email verification, and token management.
 
 ## Features
 
@@ -56,7 +56,7 @@ Hello Identity is a comprehensive authentication service designed to provide sec
 
 ```bash
 git clone <repository-url>
-cd hello-identity
+cd theluxar
 ```
 
 ### 2. Set up environment variables
@@ -145,7 +145,7 @@ npm run start:debug
 
 Once the application is running, you can access the Swagger API documentation at:
 
-```
+```text
 http://localhost:3000/api
 ```
 
@@ -186,18 +186,19 @@ The application provides several endpoints for managing user permissions:
 The application supports a flexible permission system loaded from a JSON configuration file:
 
 1. Permission definitions are stored in `permissions.json` at the root of the project
-2. Permissions are organized by application name (e.g., `helloHardware`, `hermes`)
+2. Permissions are organized by application name (e.g., `theluxar`, `theluxarApp`)
 3. Each application can define categories of permissions (e.g., `user`, `permission`)
 4. Each category contains an array of specific permission values
 
 Example permissions.json:
+
 ```json
 {
-  "helloHardware": {
+  "theluxar": {
     "user": ["ReadUsers", "CreateUser", "UpdateUser", "DeleteUser"],
     "permission": ["AddPermissions", "RevokePermissions"]
   },
-  "hermes": {}
+  "theluxarApp": {}
 }
 ```
 

@@ -11,6 +11,7 @@ import {
   Logger,
   NotFoundException,
   ConflictException,
+  Param,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -33,9 +34,18 @@ import { timeToMilliSeconds } from '../../common/utils/helpers.util';
 import { AuthGuard } from '@nestjs/passport';
 import { SignUpDto } from '../dto/signup.dto';
 import { QueryRequired } from '../decorators/query-required.decorator';
+import { AccessTokenGuard } from '../guards/access-token.guard';
 
 interface RequestWithCsrf extends Request {
   csrfToken(): string;
+}
+
+interface RequestWithUser extends Request {
+  user: {
+    id?: string;
+    sub?: string;
+    [key: string]: any;
+  };
 }
 
 @Controller('auth')
@@ -49,11 +59,15 @@ export class AuthController {
 
   private redirectUrl(redirect: string) {
     this.logger.debug(`Parsing redirect URL: ${redirect}`);
-    this.logger.debug(`Using CLIENT_DELIMITER: ${process.env.CLIENT_DELIMITER}`);
+    this.logger.debug(
+      `Using CLIENT_DELIMITER: ${process.env.CLIENT_DELIMITER}`,
+    );
     this.logger.debug(`CLIENTS config: ${process.env.CLIENTS}`);
     
     const split = redirect.split(<string>process.env.CLIENT_DELIMITER);
-    this.logger.debug(`Split result: [${split.join(', ')}], length: ${split.length}`);
+    this.logger.debug(
+      `Split result: [${split.join(', ')}], length: ${split.length}`,
+    );
 
     const clients: Record<string, string> = JSON.parse(
       <string>process.env.CLIENTS,
@@ -63,13 +77,19 @@ export class AuthController {
     if (split.length === 2) {
       if (split[0] in clients) {
         const result = clients[split[0]] + split[1];
-        this.logger.debug(`Valid redirect URL found. Redirecting to: ${result}`);
+        this.logger.debug(
+          `Valid redirect URL found. Redirecting to: ${result}`,
+        );
         return result;
       } else {
-        this.logger.debug(`Client name '${split[0]}' not found in clients config`);
+        this.logger.debug(
+          `Client name '${split[0]}' not found in clients config`,
+        );
       }
     } else {
-      this.logger.debug(`Invalid split length: ${split.length}, expected 2 parts`);
+      this.logger.debug(
+        `Invalid split length: ${split.length}, expected 2 parts`,
+      );
     }
 
     this.logger.debug('No valid redirect URL found, returning null');
@@ -358,18 +378,24 @@ export class AuthController {
         this.logger.debug(`Resolved redirect URL: ${redirectUrl || 'null'}`);
         
         if (redirectUrl) {
-          this.logger.debug(`Setting cookies and returning redirect URL: ${redirectUrl}`);
+          this.logger.debug(
+            `Setting cookies and returning redirect URL: ${redirectUrl}`,
+          );
           this.setTokenCookies(res, tokens);
           // Instead of redirect, send JSON response with redirect URL
           return res.status(200).json({
             success: true,
-            redirectUrl: redirectUrl
+            redirectUrl: redirectUrl,
           });
         } else {
-          this.logger.debug('Invalid redirect URL, falling back to token display');
+          this.logger.debug(
+            'Invalid redirect URL, falling back to token display',
+          );
         }
       } else {
-        this.logger.debug('No redirect parameter found, rendering token display view');
+        this.logger.debug(
+          'No redirect parameter found, rendering token display view',
+        );
       }
 
       this.setTokenCookies(res, tokens);
@@ -686,6 +712,72 @@ export class AuthController {
         ),
         header: headerContext('confirmation'),
       });
+    }
+  }
+
+  @Get('verify')
+  @UseGuards(AccessTokenGuard)
+  async verifySession(@Req() req: RequestWithUser, @Res() res: Response) {
+    // Ensure we always respond with JSON
+    res.setHeader('Content-Type', 'application/json');
+    
+    try {
+      // The AccessTokenGuard ensures the token is valid
+      // We just need to return the user ID from the token
+      const userId = req.user?.id || req.user?.sub;
+      
+      if (!userId) {
+        throw new InternalServerErrorException('User ID not found in token');
+      }
+
+      return res.status(200).json({
+        userId,
+        valid: true
+      });
+    } catch (error) {
+      this.logger.error(
+        { function: 'verifySession', method: 'GET' },
+        `Session verification failed: ${JSON.stringify(error)}`,
+      );
+      
+      return res.status(401).json({
+        userId: null,
+        valid: false,
+        error: 'Session verification failed'
+      });
+    }
+  }
+
+  @Get('user/:id')
+  @UseGuards(AccessTokenGuard)
+  async getUserInfo(@Param('id') id: string, @Req() req: RequestWithUser) {
+    try {
+      // Verify that the user is requesting their own information
+      const tokenUserId = req.user?.id || req.user?.sub;
+
+      if (tokenUserId !== id) {
+        throw new InternalServerErrorException(
+          'Unauthorized access to user information',
+        );
+      }
+
+      // Get user information from the auth service
+      const user = await this.authService.getUserById(id);
+
+      return {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      };
+    } catch (error) {
+      this.logger.error(
+        { function: 'getUserInfo', input: { id }, method: 'GET' },
+        `Failed to get user info: ${JSON.stringify(error)}`,
+      );
+      throw new InternalServerErrorException('Failed to get user information');
     }
   }
 }

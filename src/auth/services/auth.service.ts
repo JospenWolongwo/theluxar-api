@@ -17,12 +17,14 @@ import { SignUpDto } from '../dto/signup.dto';
 import { EmailService } from '../../email/services/email.service';
 import { User } from '../../user/entities/user.entity';
 import { AccountPayload } from '../interfaces/auth.interface';
+import { UserPermissionsService } from '../../user-permission/services/user-permissions.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Auth) private readonly authRepository: Repository<Auth>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly userPermissionsService: UserPermissionsService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
   ) {}
@@ -141,55 +143,62 @@ export class AuthService {
   }
 
   async register(registerDto: SignUpDto) {
+    const { email, password, firstName, lastName } = registerDto;
+
+    const existingAccount = await this.authRepository.findOne({
+      where: { email: email },
+    });
+
+    if (existingAccount) {
+      throw new ConflictException('This email is already registered');
+    }
+
     try {
-      // Check if account exists (existing code)
-      const accountExist = await this.authRepository.findOne({
-        where: { email: registerDto.email },
+      const newUser = this.userRepository.create({
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
       });
 
-      if (accountExist) {
-        throw new ConflictException('Account with this email already exists');
-      }
+      await this.userRepository.save(newUser);
 
-      // Create new User
-      const user = this.userRepository.create({ email: registerDto.email });
-      await this.userRepository.save(user);
-
-      // Create new account, but set active to false
-      const newAccount = this.authRepository.create({
-        email: registerDto.email,
-        password: registerDto.password,
-        active: false,
-        user: user,
+      // Create default permissions for the new user
+      await this.userPermissionsService.addPermissions(newUser.id, {
+        permissions: ['user'],
+        appName: ['api']
       });
 
-      const savedAccount = await this.authRepository.save(newAccount);
+      const accountData = {
+        email: email,
+        password: encodeData(password),
+        user: newUser,
+      };
 
-      // Generate activation token with 24-hour expiration
-      const activationToken = await this.jwtService.signAsync(
-        { sub: savedAccount.id },
+      const newAuth = this.authRepository.create(accountData);
+
+      await this.authRepository.save(newAuth);
+
+      const token = await this.jwtService.signAsync(
+        { sub: newUser.id },
         {
-          secret: process.env.ACTIVATION_SECRET,
-          expiresIn: process.env.ACTIVATION_TOKEN_EXPIRATION,
+          secret: process.env.EMAIL_TOKEN_SECRET,
+          expiresIn: process.env.EMAIL_TOKEN_EXPIRATION,
         },
       );
 
-      // Send activation email
-      await this.emailService.sendAccountActivationEmail(
-        registerDto.email,
-        activationToken,
-        'accountActivation',
+      await this.emailService.sendAccountActivationEmail(email, token, 'accountActivation');
+
+      return {
+        message: 'Account created successfully. Please check your email to activate your account.',
+      };
+    } catch (error) {
+      this.logger.error(
+        { [this.register.name]: { input: registerDto } },
+        'Error creating account',
+        error?.stack,
       );
 
-      this.logger.log(`Activation email sent to ${registerDto.email}`);
-
-      return savedAccount;
-    } catch (error) {
-      // Error handling (existing code)
-      this.logger.error('Registration error', error);
-      throw error instanceof HttpException
-        ? error
-        : new InternalServerErrorException('Failed to create account');
+      throw new InternalServerErrorException('Error creating account');
     }
   }
 
@@ -407,49 +416,56 @@ export class AuthService {
   }
 
   async registerFromAccount(accountPayload: AccountPayload): Promise<string> {
-    // Validate email (fallback for GitHub if email is private)
-    if (!accountPayload.email) {
-      throw new BadRequestException('Email is required for registration');
-    }
-
-    // Check if the account already exists
-    const accountExist = await this.authRepository.exists({
-      where: { email: accountPayload.email },
-    });
-
-    if (accountExist) {
-      // If the account exists, fetch it
-      const account = await this.authRepository.findOne({
+    try {
+      // Check if account exists
+      const accountExist = await this.authRepository.findOne({
         where: { email: accountPayload.email },
-        relations: ['user'], // Ensure the user relation is loaded
       });
 
-      if (!account.active) {
-        // Activate the account if it was inactive
-        await this.authRepository.update({ id: account.id }, { active: true });
+      if (accountExist) {
+        return accountExist.user.id;
       }
 
-      return account.user.id; // Return the existing user ID
-    } else {
-      // Create a new user
-      const newUser = this.userRepository.create({
-        firstName: accountPayload.firstName,
-        lastName: accountPayload.lastName,
-        email: accountPayload.email,
+      // Create new User
+      const user = this.userRepository.create({ email: accountPayload.email });
+      await this.userRepository.save(user);
+
+      // Create default permissions for the OAuth user
+      await this.userPermissionsService.addPermissions(user.id, {
+        permissions: ['user'],
+        appName: ['api']
       });
 
-      const savedUser = await this.userRepository.save(newUser);
-
-      // Create a new auth account linked to the user
+      // Create new account
       const newAccount = this.authRepository.create({
         email: accountPayload.email,
         active: true,
-        user: savedUser,
+        user: user,
       });
 
-      const createdAccount = await this.authRepository.save(newAccount);
+      await this.authRepository.save(newAccount);
 
-      return createdAccount.user.id;
+      return user.id;
+    } catch (error) {
+      this.logger.error('Registration from account error', error);
+      throw new InternalServerErrorException('Failed to create account from OAuth');
+    }
+  }
+
+  async getUserById(userId: string) {
+    try {
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
+
+      return user;
+    } catch (error) {
+      this.logger.error(`Failed to get user by ID: ${userId}`, error);
+      throw error instanceof HttpException
+        ? error
+        : new InternalServerErrorException('Failed to get user information');
     }
   }
 }

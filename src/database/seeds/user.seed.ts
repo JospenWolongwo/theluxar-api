@@ -90,11 +90,13 @@ export async function seedUsers(db: DataSource): Promise<User[]> {
   await createEntities<UserPermissionEntity>(db, UserPermissionEntity, [
     {
       owner: users.find((u) => u.email === 'test@example.com'),
-      permissions: ['ReadUsers', 'CreateUser'],
+      permissions: ['user', 'ReadUsers', 'CreateUser'],
     },
     {
       owner: users.find((u) => u.email === 'admin@theluxar.com'),
       permissions: [
+        'user',
+        'admin',
         'Admin',
         'ReadUsers',
         'CreateUser',
@@ -104,7 +106,7 @@ export async function seedUsers(db: DataSource): Promise<User[]> {
     },
     {
       owner: users.find((u) => u.email === 'customer@theluxar.com'),
-      permissions: ['Customer'],
+      permissions: ['user', 'Customer'],
     },
   ]);
 
