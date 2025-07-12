@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prebuild": "npx rimraf dist",
+    "prebuild": "rm -rf dist",
     "build": "npm run prebuild && nest build && npm run copy-assets && webpack --config=public/js/webpack.config.js",
     "start": "node dist/main",
     "start:dev": "npm run prebuild && concurrently \"npm run copy-assets:dev\" \"webpack --config=public/js/webpack.config.js --watch\" \"nest start --watch\"",

@@ -12,6 +12,9 @@ RUN echo "" > .npmrc
 # Install only production dependencies
 RUN npm install --production --no-package-lock
 
+# Add node_modules/.bin to PATH
+ENV PATH="/app/node_modules/.bin:${PATH}"
+
 # Copy app source
 COPY . .
 
