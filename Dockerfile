@@ -12,6 +12,9 @@ RUN echo "" > .npmrc
 # Install only production dependencies
 RUN npm install --production --no-package-lock
 
+# Install build tools globally
+RUN npm install -g @nestjs/cli copyfiles webpack webpack-cli
+
 # Add node_modules/.bin to PATH
 ENV PATH="/app/node_modules/.bin:${PATH}"
 
