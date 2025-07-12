@@ -34,10 +34,6 @@
     "*.{ts,html,scss,yml,md,json,js}": "prettier --write"
   },
   "dependencies": {
-    "@hellocomputing/base-eslint": "^0.0.4",
-    "@hellocomputing/commitlint": "^0.0.3",
-    "@hellocomputing/eslint-node": "^0.0.3",
-    "@hellocomputing/prettier": "^0.0.3",
     "@nestjs/cache-manager": "^3.0.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.2",
@@ -76,6 +72,10 @@
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
+    "@hellocomputing/base-eslint": "^0.0.4",
+    "@hellocomputing/commitlint": "^0.0.3",
+    "@hellocomputing/eslint-node": "^0.0.3",
+    "@hellocomputing/prettier": "^0.0.3",
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
     "@nestjs/cli": "^10.0.0",
