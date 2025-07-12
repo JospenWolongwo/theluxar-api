@@ -37,8 +37,9 @@ ENV NODE_ENV=production
 EXPOSE 3000
 EXPOSE $PORT
 
-# Create startup script
-RUN echo '#!/bin/sh\n\n# Check if this is the first run\nif [ -z "$FIRST_RUN_COMPLETE" ]; then\n  echo "First run detected, running seeders..."\n  node dist/database/seeds/first-run-seed.js\n  echo "Seeders completed"\nfi\n\n# Start the application\nnode dist/main.js' > /app/start.sh && chmod +x /app/start.sh
+# Copy and make startup script executable
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Run the app
 CMD ["/app/start.sh"]
