@@ -5,9 +5,10 @@ import { EmailService } from './services/email.service';
 
 @Module({
   imports: [
+    // Type casting to handle module version incompatibilities
     MailjetModule.registerAsync({
       useFactory: async () => emailServerConfig(),
-    }),
+    }) as any,
   ],
   providers: [EmailService],
   exports: [EmailService],
