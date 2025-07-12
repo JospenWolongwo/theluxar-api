@@ -4,6 +4,17 @@
 node --version
 echo "Current working directory: $(pwd)"
 
+# Run the first-run seed script to populate the database if needed
+echo "Attempting to run first-run seed script..."
+if [ -f "dist/src/database/seeds/first-run-seed.js" ]; then
+  echo "Found first-run-seed.js, running..."
+  node dist/src/database/seeds/first-run-seed.js
+  echo "First-run seed script completed"
+else
+  echo "Warning: first-run-seed.js not found, skipping database seeding"
+  find ./dist -name "first-run-seed.js" || echo "first-run-seed.js not found in dist"
+fi
+
 # Directly check for main.js in various possible locations
 echo "Checking for main.js in various locations:"
 ls -la dist/ | grep main.js || echo "No main.js in dist/"
