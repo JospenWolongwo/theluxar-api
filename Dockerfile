@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
+# Create empty .npmrc file to override any existing one
+RUN echo "" > .npmrc
+
 # Install only production dependencies (skip dev dependencies)
 RUN npm install --production --no-package-lock --legacy-peer-deps
 
