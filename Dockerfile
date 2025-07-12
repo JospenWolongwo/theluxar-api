@@ -3,14 +3,14 @@ FROM node:20-alpine
 # Create app directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy production package.json (without @hellocomputing dependencies)
+COPY package.prod.json ./package.json
 
 # Create empty .npmrc file to override any existing one
 RUN echo "" > .npmrc
 
-# Install only production dependencies (skip dev dependencies)
-RUN npm install --production --no-package-lock --legacy-peer-deps
+# Install only production dependencies
+RUN npm install --production --no-package-lock
 
 # Copy app source
 COPY . .
