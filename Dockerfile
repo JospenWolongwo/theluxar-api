@@ -15,8 +15,14 @@ RUN npm install --production --no-package-lock
 # Add node_modules/.bin to PATH
 ENV PATH="/app/node_modules/.bin:${PATH}"
 
-# Copy app source (but exclude package.json to keep our production version)
-COPY --exclude=package.json --exclude=package-lock.json . .
+# Save production package.json to a temp file
+RUN cp package.json package.json.prod
+
+# Copy app source
+COPY . .
+
+# Restore production package.json
+RUN cp package.json.prod package.json
 
 # Build the application
 RUN npm run build
