@@ -68,9 +68,12 @@ export async function firstRunSeed() {
     FilterOption
   ];
   
+  // Declare db variable at function scope
+  let db;
+  
   try {
     // Pass the entities array to initDb
-    const db = await initDb(entities);
+    db = await initDb(entities);
 
     // Check if there's existing data in the users table to avoid duplicate seeding
     const userRepo = db.getRepository(User);
