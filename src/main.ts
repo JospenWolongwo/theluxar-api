@@ -31,7 +31,8 @@ function registerPartialsRecursively(dir: string) {
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  const PORT = parseInt(process.env.PORT || '3000');
+  // Force port 3000 for Back4app compatibility - their health checks expect this port
+  const PORT = 3000;
   const SITE_DOMAIN = process.env.SITE_DOMAIN || 'http://localhost';
   const baseUrl = `${SITE_DOMAIN}:${PORT}`;
 
