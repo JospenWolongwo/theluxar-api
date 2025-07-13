@@ -12,26 +12,26 @@ import {
 
 // Import all entities to ensure metadata is registered with TypeORM
 import { User } from '../../user/entities/user.entity';
-import { UserPermissionEntity } from '../../user/entities/user-permission.entity';
+import { UserPermissionEntity } from '../../user-permission/entities/user-permission.entity';
 import { Auth } from '../../auth/entities/auth.entity';
 import { Product } from '../../product/entities/product.entity';
-import { Category } from '../../product/entities/category.entity';
-import { Stock } from '../../product/entities/stock.entity';
-import { Discount } from '../../product/entities/discount.entity';
-import { Review } from '../../product/entities/review.entity';
-import { Cart } from '../../shopping/entities/cart.entity';
-import { CartItem } from '../../shopping/entities/cart-item.entity';
-import { Wishlist } from '../../shopping/entities/wishlist.entity';
-import { WishlistItem } from '../../shopping/entities/wishlist-item.entity';
-import { Order } from '../../shopping/entities/order.entity';
-import { OrderItem } from '../../shopping/entities/order-item.entity';
-import { Address } from '../../shopping/entities/address.entity';
-import { ServiceCategory } from '../../product/entities/service-category.entity';
-import { SpecItem } from '../../product/entities/spec-item.entity';
-import { CoreFeature } from '../../product/entities/core-feature.entity';
-import { IncludedItem } from '../../product/entities/included-item.entity';
-import { FilterCategory } from '../../product/entities/filter-category.entity';
-import { FilterOption } from '../../product/entities/filter-option.entity';
+import { Category } from '../../category/entities/category.entity';
+import { Stock } from '../../stock/entities/stock.entity';
+import { Discount } from '../../discount/entities/discount.entity';
+import { Review } from '../../review/entities/review.entity';
+import { Cart } from '../../cart/entities/cart.entity';
+import { CartItem } from '../../cart/entities/cart-item.entity';
+import { Wishlist } from '../../wishlist/entities/wishlist.entity';
+import { WishlistItem } from '../../wishlist/entities/wishlist-item.entity';
+import { Order } from '../../order/entities/order.entity';
+import { OrderItem } from '../../order/entities/order-item.entity';
+import { Address } from '../../address/entities/address.entity';
+import { ServiceCategory } from '../../service-category/entities/service-category.entity';
+import { SpecItem } from '../../product-description/entities/spec-item.entity';
+import { CoreFeature } from '../../product-description/entities/core-feature.entity';
+import { IncludedItem } from '../../product-description/entities/included-item.entity';
+import { FilterCategory } from '../../product-filter/entities/filter-category.entity';
+import { FilterOption } from '../../product-filter/entities/filter-option.entity';
 
 // Load environment variables
 config();
