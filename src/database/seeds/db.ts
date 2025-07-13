@@ -33,14 +33,32 @@ import { FilterOption } from '../../product-filter/entities/filter-option.entity
 config();
 
 // Create database config
-const dbConfig: DataSourceOptions = {
-  type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  username: process.env.DB_USER || 'default_user',
-  password: process.env.DB_PASSWORD || 'default_password',
-  database: process.env.DB_NAME || 'hello_identity',
-  synchronize: true,
+let dbConfig: DataSourceOptions;
+
+// If DATABASE_URL is provided (e.g., Neon connection string), use it directly
+if (process.env.DATABASE_URL) {
+  console.log('Using DATABASE_URL for seed database connection');
+  dbConfig = {
+    type: 'postgres',
+    url: process.env.DATABASE_URL,
+    synchronize: true,
+    ssl:
+      process.env.NODE_ENV === 'production'
+        ? { rejectUnauthorized: false }
+        : false,
+  };
+} else {
+  console.log('Using individual database parameters for seed connection');
+  dbConfig = {
+    type: 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432', 10),
+    username: process.env.DB_USER || 'default_user',
+    password: process.env.DB_PASSWORD || 'default_password',
+    database: process.env.DB_NAME || 'theluxar',
+    synchronize: true,
+  };
+}
   entities: [
     // Auth & User entities
     Auth, User, UserPermissionEntity,
