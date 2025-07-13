@@ -115,9 +115,10 @@ async function bootstrap() {
   // Static assets
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
-  // Pass baseUrl to all templates
+  // Pass baseUrl and domain separately to all templates
   app.use((req, res, next) => {
     res.locals.baseUrl = baseUrl;
+    res.locals.domain = SITE_DOMAIN; // Just the domain without paths
     next();
   });
 

@@ -29,26 +29,27 @@ export const MAIN_URL = (() => {
 })();
 
 export const loginContext = (redirect: string | undefined, csrf: string) => {
+  // Use relative paths instead of full URLs
   const loginUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/login`
-      : `${MAIN_URL}/auth/login?redirect=${redirect}`;
+      ? `/auth/login`
+      : `/auth/login?redirect=${redirect}`;
   const googleAuthUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/google`
-      : `${MAIN_URL}/auth/google?redirect=${redirect}`;
+      ? `/auth/google`
+      : `/auth/google?redirect=${redirect}`;
   const githubAuthUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/github`
-      : `${MAIN_URL}/auth/github?redirect=${redirect}`;
+      ? `/auth/github`
+      : `/auth/github?redirect=${redirect}`;
   const signUpUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/signup`
-      : `${MAIN_URL}/auth/signup?redirect=${redirect}`;
+      ? `/auth/signup`
+      : `/auth/signup?redirect=${redirect}`;
   const forgotPasswordUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/forgot-password`
-      : `${MAIN_URL}/auth/forgot-password?redirect=${redirect}`;
+      ? `/auth/forgot-password`
+      : `/auth/forgot-password?redirect=${redirect}`;
 
   return {
     title: 'Welcome Back',
@@ -64,14 +65,15 @@ export const loginContext = (redirect: string | undefined, csrf: string) => {
 };
 
 export const signupContext = (redirect: string | undefined, csrf: string) => {
+  // Use relative paths instead of full URLs
   const signUpUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/signup`
-      : `${MAIN_URL}/auth/signup?redirect=${redirect}`;
+      ? `/auth/signup`
+      : `/auth/signup?redirect=${redirect}`;
   const loginUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/login`
-      : `${MAIN_URL}/auth/login?redirect=${redirect}`;
+      ? `/auth/login`
+      : `/auth/login?redirect=${redirect}`;
 
   return {
     title: 'Create an Account',
@@ -160,14 +162,15 @@ export const forgotPasswordContext = (
   redirect: string | undefined,
   csrf: string,
 ) => {
+  // Use relative paths instead of full URLs
   const forgotPasswordUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/forgot-password`
-      : `${MAIN_URL}/auth/forgot-password?redirect=${redirect}`;
+      ? `/auth/forgot-password`
+      : `/auth/forgot-password?redirect=${redirect}`;
   const loginUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/login`
-      : `${MAIN_URL}/auth/login?redirect=${redirect}`;
+      ? `/auth/login`
+      : `/auth/login?redirect=${redirect}`;
 
   return {
     title: 'Forgot Password',
@@ -184,14 +187,15 @@ export const resetPasswordContext = (
   csrf: string,
   token: string,
 ) => {
+  // Use relative paths instead of full URLs
   const resetPasswordUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/reset-password`
-      : `${MAIN_URL}/auth/reset-password?redirect=${redirect}`;
+      ? `/auth/reset-password`
+      : `/auth/reset-password?redirect=${redirect}`;
   const loginUrl =
     redirect === undefined
-      ? `${MAIN_URL}/auth/login`
-      : `${MAIN_URL}/auth/login?redirect=${redirect}`;
+      ? `/auth/login`
+      : `/auth/login?redirect=${redirect}`;
 
   return {
     title: 'Reset Your Password',
