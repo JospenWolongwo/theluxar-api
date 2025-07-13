@@ -43,12 +43,34 @@ config();
 export async function firstRunSeed() {
   console.log('🚀 Starting first-run database seeding...');
   
-  // Declare db variable at function scope
-  let db;
-
+  // Create an array of all entity classes to register with TypeORM
+  const entities = [
+    User,
+    UserPermissionEntity,
+    Auth,
+    Product,
+    Category,
+    Stock,
+    Discount,
+    Review,
+    Cart,
+    CartItem,
+    Wishlist,
+    WishlistItem,
+    Order,
+    OrderItem,
+    Address,
+    ServiceCategory,
+    SpecItem,
+    CoreFeature,
+    IncludedItem,
+    FilterCategory,
+    FilterOption
+  ];
+  
   try {
-    // Initialize the database connection
-    db = await initDb();
+    // Pass the entities array to initDb
+    const db = await initDb(entities);
 
     // Check if there's existing data in the users table to avoid duplicate seeding
     const userRepo = db.getRepository(User);

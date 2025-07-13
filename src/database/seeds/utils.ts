@@ -3,10 +3,27 @@ import { AppDataSource } from './db';
 
 /**
  * Initialize a database connection
+ * @param entities Optional array of entity classes to register with TypeORM
  * @returns Promise with database connection
  */
-export async function initDb(): Promise<DataSource> {
+export async function initDb(entities?: any[]): Promise<DataSource> {
   try {
+    // If entities are provided, create a custom data source with them
+    if (entities && entities.length > 0) {
+      console.log(`Initializing database with ${entities.length} explicitly provided entities`);
+      // Get the current options from AppDataSource
+      const options = AppDataSource.options;
+      
+      // Create a new data source with the provided entities
+      const customDataSource = new DataSource({
+        ...options,
+        entities: entities
+      });
+      
+      return await customDataSource.initialize();
+    }
+    
+    // Otherwise use the default AppDataSource
     return await AppDataSource.initialize();
   } catch (error) {
     console.error('Error initializing database:', error);
