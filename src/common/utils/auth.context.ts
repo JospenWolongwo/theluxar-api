@@ -38,10 +38,10 @@ export const loginContext = (redirect: string | undefined, csrf: string) => {
     redirect === undefined
       ? `/auth/google`
       : `/auth/google?redirect=${redirect}`;
-  const githubAuthUrl =
+  const facebookAuthUrl =
     redirect === undefined
-      ? `/auth/github`
-      : `/auth/github?redirect=${redirect}`;
+      ? `/auth/facebook`
+      : `/auth/facebook?redirect=${redirect}`;
   const signUpUrl =
     redirect === undefined
       ? `/auth/signup`
@@ -56,7 +56,7 @@ export const loginContext = (redirect: string | undefined, csrf: string) => {
     subtitle: 'Sign in to continue to your account',
     loginUrl,
     googleAuthUrl,
-    githubAuthUrl,
+    facebookAuthUrl,
     signUpUrl,
     forgotPasswordUrl,
     csrf,

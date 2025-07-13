@@ -482,7 +482,8 @@ input[type='password']::-ms-clear {
 }
 
 .btn-google,
-.btn-github {
+.btn-github,
+.btn-facebook {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -511,6 +512,16 @@ input[type='password']::-ms-clear {
 
 .btn-github:hover {
   background-color: #1b1f23;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-facebook {
+  background-color: #1877f2; /* Facebook blue */
+  color: #fff;
+}
+
+.btn-facebook:hover {
+  background-color: #166fe5; /* Slightly darker Facebook blue */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
