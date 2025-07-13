@@ -1,7 +1,32 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-export const MAIN_URL = process.env.SITE_DOMAIN + ':' + process.env.PORT;
+/**
+ * Generates the application's main URL based on environment variables
+ * - In production: Uses full SITE_DOMAIN (assumes it includes protocol and any required port)
+ * - In development: Constructs URL with protocol, domain, and port
+ */
+export const MAIN_URL = (() => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const siteDomain = process.env.SITE_DOMAIN || 'localhost';
+  
+  // For production environments, use the full domain without modifying it
+  // This assumes SITE_DOMAIN in production includes protocol (https://)
+  if (isProduction) {
+    // Remove trailing slash if present
+    return siteDomain.endsWith('/') ? siteDomain.slice(0, -1) : siteDomain;
+  }
+  
+  // For local development, construct the full URL with port
+  const protocol = 'http://';
+  const port = process.env.PORT || '3000';
+  
+  // Don't add protocol if it's already included
+  const base = siteDomain.startsWith('http') ? siteDomain : protocol + siteDomain;
+  
+  // Return base URL with port
+  return `${base}:${port}`;
+})();
 
 export const loginContext = (redirect: string | undefined, csrf: string) => {
   const loginUrl =
