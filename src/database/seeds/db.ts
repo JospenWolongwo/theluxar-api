@@ -57,23 +57,22 @@ if (process.env.DATABASE_URL) {
     password: process.env.DB_PASSWORD || 'default_password',
     database: process.env.DB_NAME || 'theluxar',
     synchronize: true,
+    entities: [
+      // Auth & User entities
+      Auth, User, UserPermissionEntity,
+      
+      // Product related entities
+      Product, Category, Stock, Discount, Review,
+      
+      // Shopping related entities
+      Cart, CartItem, Wishlist, WishlistItem, Order, OrderItem, Address,
+      
+      // Supporting entities
+      ServiceCategory, SpecItem, CoreFeature, IncludedItem,
+      FilterCategory, FilterOption
+    ],
   };
 }
-  entities: [
-    // Auth & User entities
-    Auth, User, UserPermissionEntity,
-    
-    // Product related entities
-    Product, Category, Stock, Discount, Review,
-    
-    // Shopping related entities
-    Cart, CartItem, Wishlist, WishlistItem, Order, OrderItem, Address,
-    
-    // Supporting entities
-    ServiceCategory, SpecItem, CoreFeature, IncludedItem,
-    FilterCategory, FilterOption
-  ],
-};
 
 // Create a new data source
 export const AppDataSource = new DataSource(dbConfig);
