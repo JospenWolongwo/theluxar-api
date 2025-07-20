@@ -63,7 +63,7 @@ export class AuthController {
       `Using CLIENT_DELIMITER: ${process.env.CLIENT_DELIMITER}`,
     );
     this.logger.debug(`CLIENTS config: ${process.env.CLIENTS}`);
-    
+
     const split = redirect.split(<string>process.env.CLIENT_DELIMITER);
     this.logger.debug(
       `Split result: [${split.join(', ')}], length: ${split.length}`,
@@ -368,7 +368,7 @@ export class AuthController {
       const user = req.user;
       this.logger.debug(`Login successful for user ID: ${user.id}`);
       this.logger.debug(`Redirect parameter received: ${redirect}`);
-      
+
       const tokens = await this.authService.login(user.id);
       this.logger.debug('Tokens generated successfully');
 
@@ -376,7 +376,7 @@ export class AuthController {
         this.logger.debug(`Redirect parameter is present: ${redirect}`);
         const redirectUrl = this.redirectUrl(redirect);
         this.logger.debug(`Resolved redirect URL: ${redirectUrl || 'null'}`);
-        
+
         if (redirectUrl) {
           this.logger.debug(
             `Setting cookies and returning redirect URL: ${redirectUrl}`,
@@ -720,30 +720,30 @@ export class AuthController {
   async verifySession(@Req() req: RequestWithUser, @Res() res: Response) {
     // Ensure we always respond with JSON
     res.setHeader('Content-Type', 'application/json');
-    
+
     try {
       // The AccessTokenGuard ensures the token is valid
       // We just need to return the user ID from the token
       const userId = req.user?.id || req.user?.sub;
-      
+
       if (!userId) {
         throw new InternalServerErrorException('User ID not found in token');
       }
 
       return res.status(200).json({
         userId,
-        valid: true
+        valid: true,
       });
     } catch (error) {
       this.logger.error(
         { function: 'verifySession', method: 'GET' },
         `Session verification failed: ${JSON.stringify(error)}`,
       );
-      
+
       return res.status(401).json({
         userId: null,
         valid: false,
-        error: 'Session verification failed'
+        error: 'Session verification failed',
       });
     }
   }

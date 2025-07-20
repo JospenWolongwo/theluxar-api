@@ -1,14 +1,14 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
   UseGuards,
   HttpStatus,
-  HttpCode
+  HttpCode,
 } from '@nestjs/common';
 import { CartService } from '../services/cart.service';
 import { CreateCartDto } from '../dto/create-cart.dto';
@@ -26,7 +26,7 @@ import {
   ApiAddItemToCart,
   ApiUpdateCartItem,
   ApiRemoveItemFromCart,
-  ApiEmptyCart
+  ApiEmptyCart,
 } from '../swagger/cart-swagger.decorators';
 
 @Controller('carts')
@@ -80,7 +80,7 @@ export class CartController {
   @ApiAddItemToCart()
   addItemToCart(
     @Param('id') id: string,
-    @Body() createCartItemDto: CreateCartItemDto
+    @Body() createCartItemDto: CreateCartItemDto,
   ) {
     return this.cartService.addItemToCart(id, createCartItemDto);
   }
@@ -91,7 +91,7 @@ export class CartController {
   updateCartItem(
     @Param('id') id: string,
     @Param('itemId') itemId: string,
-    @Body() updateCartItemDto: UpdateCartItemDto
+    @Body() updateCartItemDto: UpdateCartItemDto,
   ) {
     return this.cartService.updateCartItem(id, itemId, updateCartItemDto);
   }
@@ -99,10 +99,7 @@ export class CartController {
   @Delete(':id/items/:itemId')
   @UseGuards(AccessTokenGuard)
   @ApiRemoveItemFromCart()
-  removeCartItem(
-    @Param('id') id: string,
-    @Param('itemId') itemId: string
-  ) {
+  removeCartItem(@Param('id') id: string, @Param('itemId') itemId: string) {
     return this.cartService.removeCartItem(id, itemId);
   }
 
