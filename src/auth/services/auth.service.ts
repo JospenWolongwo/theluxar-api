@@ -142,7 +142,7 @@ export class AuthService {
     }
   }
 
- async register(registerDto: SignUpDto) {
+ async register(registerDto: SignUpDto, redirect?: string) {
   const { email, password, firstName, lastName } = registerDto;
 
   try {
@@ -207,7 +207,7 @@ export class AuthService {
       },
     );
 
-    await this.emailService.sendAccountActivationEmail(email, token, 'accountActivation');
+    await this.emailService.sendAccountActivationEmail(email, token, 'accountActivation', redirect);
 
     return {
       message: 'Account created successfully. Please check your email to activate your account.',

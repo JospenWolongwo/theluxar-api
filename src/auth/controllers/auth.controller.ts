@@ -208,7 +208,7 @@ export class AuthController {
   }
 
   @Get('confirm-email')
-async emailConfirmation(
+  async emailConfirmation(
   @QueryRequired('token') token: string,
   @Query('redirect') redirect: string,
   @Req() req: RequestWithCsrf,
@@ -228,7 +228,7 @@ async emailConfirmation(
 
     const csrf = req.csrfToken();
 
-    res.render('auth/confirmation', {
+    return res.render('auth/confirmation', {
       ...signupConfirmationContext(
         'activation',
         loginUrl,
@@ -494,7 +494,7 @@ async signup(
 @Res() res: Response,
 ) {
   try {
-    await this.authService.register(signUpDto);
+    await this.authService.register(signUpDto, redirect);
 
     const loginUrl =
       redirect === undefined

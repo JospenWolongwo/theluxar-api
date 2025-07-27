@@ -4,14 +4,14 @@ import { MAIN_URL } from '../../common/utils/auth.context';
 export const accountActivationTemplate = {
   subject: `TheLuxar: Account Activation`,
   text: function (token: string, redirect?: string) {
-    const redirectToken = redirect ? '&redirect=' + redirect : '';
+    const redirectToken = redirect ? '&redirect=' + encodeURIComponent(redirect) : '';
     return `Thank you for signing up to TheLuxar.
             Use the link below to activate your account.
             ${MAIN_URL}/auth/confirm-email?token=${token}${redirectToken}
         `;
   },
   html: function (token: string, redirect?: string) {
-    const redirectToken = redirect ? '&redirect=' + redirect : '';
+    const redirectToken = redirect ? '&redirect=' + encodeURIComponent(redirect) : '';
     const activationLink = `${MAIN_URL}/auth/confirm-email?token=${token}${redirectToken}`;
 
     return `
