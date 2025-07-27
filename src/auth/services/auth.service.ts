@@ -211,7 +211,7 @@ export class AuthService {
 
       // Find the account
       const account = await this.authRepository.findOne({
-        where: { id: decoded.sub },
+        where: { user: { id: decoded.sub } },
       });
 
       if (!account) {
@@ -240,6 +240,7 @@ export class AuthService {
     try {
       const account = await this.authRepository.findOne({
         where: { email },
+        relations: ['user'],
       });
 
       if (!account) {
@@ -252,7 +253,7 @@ export class AuthService {
 
       // Generate a new activation token
       const activationToken = await this.jwtService.signAsync(
-        { sub: account.id },
+        { sub: account.user.id },
         {
           secret: process.env.ACTIVATION_SECRET,
           expiresIn: process.env.ACTIVATION_TOKEN_EXPIRATION,

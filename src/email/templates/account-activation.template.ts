@@ -2,10 +2,10 @@
 import { MAIN_URL } from '../../common/utils/auth.context';
 
 export const accountActivationTemplate = {
-  subject: `TheLuxar API: Account Activation`,
+  subject: `TheLuxar: Account Activation`,
   text: function (token: string, redirect?: string) {
     const redirectToken = redirect ? '&redirect=' + redirect : '';
-    return `Thank you for signing up to TheLuxar API.
+    return `Thank you for signing up to TheLuxar.
             Use the link below to activate your account.
             ${MAIN_URL}/auth/confirm-email?token=${token}${redirectToken}
         `;
@@ -41,7 +41,7 @@ export const accountActivationTemplate = {
           </div>
         </div>
         <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
-          &copy; 2025 TheLuxar API. All rights reserved.
+          &copy; 2025 TheLuxar. All rights reserved.
         </div>
       </div>
     `;

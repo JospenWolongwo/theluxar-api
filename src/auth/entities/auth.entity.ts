@@ -25,11 +25,4 @@ export class Auth extends BaseEntity {
     onDelete: 'CASCADE',
   })
   user: User;
-
-  @BeforeInsert()
-  async setPassword() {
-    if (this.password) {
-      this.password = encodeData(this.password);
-    }
-  }
 }
