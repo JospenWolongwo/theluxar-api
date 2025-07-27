@@ -422,45 +422,99 @@ export class AuthController {
     }
   }
 
-  @Post('signup')
-  @Csrf()
-  async signup(
-    @Query('redirect') redirect: string,
-    @Body() signUpDto: SignUpDto,
-    @Req() req: RequestWithCsrf,
-    @Res() res: Response,
-  ) {
-    try {
-      await this.authService.register(signUpDto);
+@Post('signup')
+@Csrf()
+async signup(
+@Query('redirect') redirect: string,
+@Body() signUpDto: SignUpDto,
+@Req() req: RequestWithCsrf,
+@Res() res: Response,
+) {
+  try {
+    await this.authService.register(signUpDto);
 
-      const loginUrl =
-        redirect === undefined
-          ? `${MAIN_URL}/auth/login`
-          : `${MAIN_URL}/auth/login?redirect=${redirect}`;
+    const loginUrl =
+      redirect === undefined
+        ? `${MAIN_URL}/auth/login`
+        : `${MAIN_URL}/auth/login?redirect=${redirect}`;
 
-      const csrf = req.csrfToken();
+    const csrf = req.csrfToken();
 
-      res.render('auth/confirmation', {
+    res.render('auth/confirmation', {
+      ...signupConfirmationContext(
+        'signup',
+        loginUrl,
+        `${MAIN_URL}/auth/resend-activation`,
+        signUpDto.email,
+        csrf,
+      ),
+      header: headerContext('confirmation'),
+    });
+  } catch (error) {
+    const csrf = req.csrfToken();
+    
+    // Handle ConflictException (existing user)
+    if (error instanceof ConflictException) {
+      this.logger.warn(
+        { function: 'signup', input: { email: signUpDto.email }, method: 'POST' },
+        'Signup attempt with existing email: %s',
+        signUpDto.email,
+      );
+      
+      return res.status(409).render('auth/confirmation', {
         ...signupConfirmationContext(
-          'signup',
-          loginUrl,
-          `${MAIN_URL}/auth/resend-activation`,
+          'error',
+          `${MAIN_URL}/auth/login`,
+          `${MAIN_URL}/auth/signup`,
           signUpDto.email,
           csrf,
+          'This email is already registered. Please try logging in instead.',
         ),
         header: headerContext('confirmation'),
       });
-    } catch (error) {
-      if (error.status) {
-        throw error;
-      }
-      console.error(
-        { function: 'signup', input: { signUpDto }, method: 'POST' },
-        `An error occurred when trying to register. Thrown Error : {${JSON.stringify(error)}}`,
-      );
-      throw new InternalServerErrorException('internal error');
     }
+
+    // Handle other known errors
+    if (error.status) {
+      this.logger.error(
+        { function: 'signup', input: { email: signUpDto.email }, method: 'POST' },
+        'Known error during signup: %s',
+        error.message,
+      );
+      
+      return res.status(error.status).render('auth/confirmation', {
+        ...signupConfirmationContext(
+          'error',
+          `${MAIN_URL}/auth/signup`,
+          `${MAIN_URL}/auth/signup`,
+          signUpDto.email,
+          csrf,
+          error.message || 'An error occurred during registration.',
+        ),
+        header: headerContext('confirmation'),
+      });
+    }
+
+    // Handle unexpected errors
+    this.logger.error(
+      { function: 'signup', input: { email: signUpDto.email }, method: 'POST' },
+      'Unexpected error during signup: %s',
+      error?.message || 'Unknown error',
+    );
+
+    return res.status(500).render('auth/confirmation', {
+      ...signupConfirmationContext(
+        'error',
+        `${MAIN_URL}/auth/signup`,
+        `${MAIN_URL}/auth/signup`,
+        signUpDto.email,
+        csrf,
+        'An unexpected error occurred. Please try again later.',
+      ),
+      header: headerContext('confirmation'),
+    });
   }
+}
 
   @Post('resend-activation')
   @Csrf()

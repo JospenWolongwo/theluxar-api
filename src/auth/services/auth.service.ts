@@ -142,66 +142,111 @@ export class AuthService {
     }
   }
 
-  async register(registerDto: SignUpDto) {
-    const { email, password, firstName, lastName } = registerDto;
+ async register(registerDto: SignUpDto) {
+  const { email, password, firstName, lastName } = registerDto;
 
+  try {
+    // Check if user already exists in users table
+    const existingUser = await this.userRepository.findOne({
+      where: { email: email },
+    });
+
+    if (existingUser) {
+      this.logger.warn(
+        { [this.register.name]: { input: { email } } },
+        'Attempt to register with existing email in users table: %s',
+        email,
+      );
+      throw new ConflictException('This email is already registered');
+    }
+
+    // Check if account already exists in auth table
     const existingAccount = await this.authRepository.findOne({
       where: { email: email },
     });
 
     if (existingAccount) {
+      this.logger.warn(
+        { [this.register.name]: { input: { email } } },
+        'Attempt to register with existing email in auth table: %s',
+        email,
+      );
       throw new ConflictException('This email is already registered');
     }
 
-    try {
-      const newUser = this.userRepository.create({
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-      });
+    // Create new User
+    const newUser = this.userRepository.create({
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+    });
 
-      await this.userRepository.save(newUser);
+    await this.userRepository.save(newUser);
 
-      // Create default permissions for the new user
-      await this.userPermissionsService.addPermissions(newUser.id, {
-        permissions: ['user'],
-        appName: ['theluxar']
-      });
+    // Create default permissions for the new user
+    await this.userPermissionsService.addPermissions(newUser.id, {
+      permissions: ['user'],
+      appName: ['theluxar']
+    });
 
-      const accountData = {
-        email: email,
-        password: encodeData(password),
-        user: newUser,
-      };
+    const accountData = {
+      email: email,
+      password: encodeData(password),
+      user: newUser,
+    };
 
-      const newAuth = this.authRepository.create(accountData);
+    const newAuth = this.authRepository.create(accountData);
+    await this.authRepository.save(newAuth);
 
-      await this.authRepository.save(newAuth);
+    // Generate activation token with proper expiration
+    const token = await this.jwtService.signAsync(
+      { sub: newUser.id },
+      {
+        secret: process.env.ACTIVATION_SECRET,
+        expiresIn: process.env.ACTIVATION_TOKEN_EXPIRATION || '24h', // Default to 24 hours
+      },
+    );
 
-      const token = await this.jwtService.signAsync(
-        { sub: newUser.id },
-        {
-          secret: process.env.ACTIVATION_SECRET,
-          expiresIn: process.env.ACTIVATION_TOKEN_EXPIRATION,
-        },
-      );
+    await this.emailService.sendAccountActivationEmail(email, token, 'accountActivation');
 
-      await this.emailService.sendAccountActivationEmail(email, token, 'accountActivation');
-
-      return {
-        message: 'Account created successfully. Please check your email to activate your account.',
-      };
-    } catch (error) {
-      this.logger.error(
-        { [this.register.name]: { input: registerDto } },
-        'Error creating account',
-        error?.stack,
-      );
-
-      throw new InternalServerErrorException('Error creating account');
+    return {
+      message: 'Account created successfully. Please check your email to activate your account.',
+    };
+  } catch (error) {
+    // If it's a known error (ConflictException), re-throw it
+    if (error instanceof ConflictException) {
+      throw error;
     }
-  }
 
+    // Handle database constraint violations (duplicate email)
+    // UQ_97672ac88f789774dd47f7c8be3 is likely the users table email constraint
+    // UQ_... could be the auth table email constraint
+    if (
+      error.code === '23505' || 
+      error.message?.includes('duplicate key') ||
+      error.message?.includes('UQ_97672ac88f789774dd47f7c8be3') ||
+      error.constraint?.includes('email')
+    ) {
+      this.logger.warn(
+        { [this.register.name]: { input: { email } } },
+        'Database constraint violation for email: %s, Error: %s',
+        email,
+        error.message,
+      );
+      throw new ConflictException('This email is already registered');
+    }
+
+    // Log unexpected errors
+    this.logger.error(
+      { [this.register.name]: { input: registerDto } },
+      'Unexpected error creating account: %s',
+      error?.message || 'Unknown error',
+      error?.stack,
+    );
+
+    throw new InternalServerErrorException('Error creating account');
+  }
+}
   async activateAccount(token: string) {
     try {
       // Verify the token
