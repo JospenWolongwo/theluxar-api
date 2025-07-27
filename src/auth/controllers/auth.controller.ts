@@ -208,51 +208,114 @@ export class AuthController {
   }
 
   @Get('confirm-email')
-  async emailConfirmation(
-    @QueryRequired('token') token: string,
-    @Query('redirect') redirect: string,
-    @Req() req: RequestWithCsrf,
-    @Res() res: Response,
-  ) {
-    try {
-      await this.authService.activateAccount(token);
+async emailConfirmation(
+  @QueryRequired('token') token: string,
+  @Query('redirect') redirect: string,
+  @Req() req: RequestWithCsrf,
+  @Res() res: Response,
+) {
+  try {
+    await this.authService.activateAccount(token);
 
-      const loginUrl =
-        redirect === undefined
-          ? `${MAIN_URL}/auth/login`
-          : `${MAIN_URL}/auth/login?redirect=${redirect}`;
+    const loginUrl =
+      redirect === undefined
+        ? `/auth/login`
+        : `/auth/login?redirect=${redirect}`;
 
-      if (redirect !== undefined) {
-        res = res.cookie('redirect', redirect);
-      }
+    if (redirect !== undefined) {
+      res = res.cookie('redirect', redirect);
+    }
 
-      const csrf = req.csrfToken();
+    const csrf = req.csrfToken();
 
-      res.render('auth/confirmation', {
+    res.render('auth/confirmation', {
+      ...signupConfirmationContext(
+        'activation',
+        loginUrl,
+        `/auth/resend-activation`,
+        '',
+        csrf,
+      ),
+      header: headerContext('login'),
+    });
+  } catch (error) {
+    const csrf = req.csrfToken();
+    const loginUrl =
+      redirect === undefined
+        ? `/auth/login`
+        : `/auth/login?redirect=${redirect}`;
+
+    // Handle already activated account
+    if (error instanceof ConflictException) {
+      this.logger.warn(
+        {
+          function: 'emailConfirmation',
+          input: { token: token },
+          method: 'GET',
+        },
+        'Activation attempt for already activated account',
+      );
+
+      return res.status(200).render('auth/confirmation', {
         ...signupConfirmationContext(
-          'activation',
+          'already-activated',
           loginUrl,
-          `${MAIN_URL}/auth/resend-activation`,
+          loginUrl,
           '',
           csrf,
+          'Your account is already activated. You can proceed to login.',
         ),
-        header: headerContext('login'),
+        header: headerContext('confirmation'),
       });
-    } catch (error) {
-      if (error.status) {
-        throw error;
-      }
+    }
+
+    // Handle other known errors
+    if (error.status) {
       this.logger.error(
         {
           function: 'emailConfirmation',
           input: { token: token },
           method: 'GET',
         },
-        `An error occurred when trying to send a confirmation email. Thrown Error : {${JSON.stringify(error)}}`,
+        `Known error during email confirmation: ${error.message}`,
       );
-      throw new InternalServerErrorException('internal error');
+
+      return res.status(error.status).render('auth/confirmation', {
+        ...signupConfirmationContext(
+          'error',
+          loginUrl,
+          `/auth/resend-activation`,
+          '',
+          csrf,
+          error.message || 'Invalid or expired activation link.',
+        ),
+        header: headerContext('confirmation'),
+      });
     }
+
+    // Handle unexpected errors
+    this.logger.error(
+      {
+        function: 'emailConfirmation',
+        input: { token: token },
+        method: 'GET',
+      },
+      `An error occurred when trying to send a confirmation email. Thrown Error : {${JSON.stringify(error)}}`,
+    );
+    
+    return res.status(500).render('auth/confirmation', {
+      ...signupConfirmationContext(
+        'error',
+        loginUrl,
+        `/auth/resend-activation`,
+        '',
+        csrf,
+        'An unexpected error occurred. Please try again later.',
+      ),
+      header: headerContext('confirmation'),
+    });
   }
+}
 
   @Get('forgot-password')
   forgotPasswordPage(
@@ -435,8 +498,8 @@ async signup(
 
     const loginUrl =
       redirect === undefined
-        ? `${MAIN_URL}/auth/login`
-        : `${MAIN_URL}/auth/login?redirect=${redirect}`;
+        ? `/auth/login`
+        : `/auth/login?redirect=${redirect}`;
 
     const csrf = req.csrfToken();
 
@@ -444,7 +507,7 @@ async signup(
       ...signupConfirmationContext(
         'signup',
         loginUrl,
-        `${MAIN_URL}/auth/resend-activation`,
+        `/auth/resend-activation`,
         signUpDto.email,
         csrf,
       ),
@@ -464,8 +527,8 @@ async signup(
       return res.status(409).render('auth/confirmation', {
         ...signupConfirmationContext(
           'error',
-          `${MAIN_URL}/auth/login`,
-          `${MAIN_URL}/auth/signup`,
+          `/auth/login`,
+          `/auth/signup`,
           signUpDto.email,
           csrf,
           'This email is already registered. Please try logging in instead.',
@@ -485,8 +548,8 @@ async signup(
       return res.status(error.status).render('auth/confirmation', {
         ...signupConfirmationContext(
           'error',
-          `${MAIN_URL}/auth/signup`,
-          `${MAIN_URL}/auth/signup`,
+          `/auth/signup`,
+          `/auth/signup`,
           signUpDto.email,
           csrf,
           error.message || 'An error occurred during registration.',
@@ -505,8 +568,8 @@ async signup(
     return res.status(500).render('auth/confirmation', {
       ...signupConfirmationContext(
         'error',
-        `${MAIN_URL}/auth/signup`,
-        `${MAIN_URL}/auth/signup`,
+        `/auth/signup`,
+        `/auth/signup`,
         signUpDto.email,
         csrf,
         'An unexpected error occurred. Please try again later.',
@@ -530,8 +593,8 @@ async signup(
       res.render('auth/confirmation', {
         ...signupConfirmationContext(
           'resend',
-          `${MAIN_URL}/login`,
-          `${MAIN_URL}/auth/resend-activation`,
+          `auth/login`,
+          `/auth/resend-activation`,
           email,
           csrf,
         ),
@@ -554,8 +617,8 @@ async signup(
         return res.status(error.getStatus()).render('auth/confirmation', {
           ...signupConfirmationContext(
             'error',
-            `${MAIN_URL}/signup`,
-            `${MAIN_URL}/auth/resend-activation`,
+            `auth/signup`,
+            `/auth/resend-activation`,
             email,
             csrf,
           ),
@@ -567,8 +630,8 @@ async signup(
       return res.status(500).render('auth/confirmation', {
         ...signupConfirmationContext(
           'error',
-          `${MAIN_URL}/auth/signup`,
-          `${MAIN_URL}/auth/resend-activation`,
+          `/auth/signup`,
+          `/auth/resend-activation`,
           email,
           csrf,
           'An unexpected error occurred. Please try again later.',
@@ -590,13 +653,13 @@ async signup(
       await this.authService.requestPasswordReset(email);
 
       const csrf = req.csrfToken();
-      const loginUrl = `${MAIN_URL}/auth/login`;
+      const loginUrl = `/auth/login`;
 
       return res.render('auth/confirmation', {
         ...signupConfirmationContext(
           'password-reset',
           loginUrl,
-          `${MAIN_URL}/auth/forgot-password`,
+          `/auth/forgot-password`,
           email,
           csrf,
           'A password reset email has been sent to your inbox. Please check your email to reset your password.',
@@ -614,13 +677,13 @@ async signup(
       );
 
       const csrf = req.csrfToken();
-      const loginUrl = `${MAIN_URL}/auth/login`;
+      const loginUrl = `/auth/login`;
 
       return res.status(error.status || 500).render('auth/confirmation', {
         ...signupConfirmationContext(
           'error',
           loginUrl,
-          `${MAIN_URL}/auth/forgot-password`,
+          `/auth/forgot-password`,
           email,
           csrf,
           error.message || 'An unexpected error occurred. Please try again.',
@@ -729,13 +792,13 @@ async signup(
       await this.authService.resetPassword(token, newPassword);
 
       const csrf = req.csrfToken();
-      const loginUrl = `${MAIN_URL}/auth/login`;
+      const loginUrl = `/auth/login`;
 
       return res.render('auth/confirmation', {
         ...signupConfirmationContext(
           'password-reset-success',
           loginUrl,
-          `${MAIN_URL}/auth/login`,
+          `/auth/login`,
           '',
           csrf,
           'Your password has been reset successfully. You can now log in with your new password.',
@@ -753,13 +816,13 @@ async signup(
       );
 
       const csrf = req.csrfToken();
-      const loginUrl = `${MAIN_URL}/auth/login`;
+      const loginUrl = `/auth/login`;
 
       return res.status(error.status || 500).render('auth/confirmation', {
         ...signupConfirmationContext(
           'error',
           loginUrl,
-          `${MAIN_URL}/auth/forgot-password`,
+          `/auth/forgot-password`,
           '',
           csrf,
           error.message || 'An unexpected error occurred. Please try again.',

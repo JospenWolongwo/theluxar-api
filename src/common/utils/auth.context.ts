@@ -103,7 +103,8 @@ export const signupConfirmationContext = (
     | 'resend'
     | 'error'
     | 'password-reset'
-    | 'password-reset-success',
+    | 'password-reset-success'
+    | 'already-activated',
   loginUrl: string,
   resendUrl: string,
   email?: string,
@@ -113,7 +114,7 @@ export const signupConfirmationContext = (
   const messages = {
     signup: {
       title: 'Account Confirmation',
-      subtitle: 'Thank you for joining Hello Identity',
+      subtitle: 'Thank you for joining The Luxar',
       message:
         'Your account was successfully created. Please check your email and activate your account.',
     },
@@ -140,6 +141,13 @@ export const signupConfirmationContext = (
       message:
         errorMessage ||
         'Your password has been reset successfully. You can now log in with your new password.',
+    },
+    'already-activated': {
+      title: 'Account Already Active',
+      subtitle: 'Your account is ready to use',
+      message:
+        errorMessage ||
+        'Your account is already activated. You can proceed to login.',
     },
     error: {
       title: 'Something Went Wrong',
