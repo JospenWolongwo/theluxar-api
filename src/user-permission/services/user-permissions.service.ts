@@ -25,57 +25,65 @@ export class UserPermissionsService {
   private readonly logger = new Logger(UserPermissionsService.name);
 
   async addPermissions(
-    id: string,
-    createUserPermissionDto: CreateUserPermissionDto,
-  ) {
-    //delete saved account information in cache
-    this.cacheManager.del(id);
+  id: string,
+  createUserPermissionDto: CreateUserPermissionDto,
+) {
+  //delete saved account information in cache
+  this.cacheManager.del(id);
 
-    const userPermission = await this.userPermissionRepository.findOne({
-      where: {
-        owner: {
-          id: id,
-        },
+  const userPermission = await this.userPermissionRepository.findOne({
+    where: {
+      owner: {
+        id: id,
       },
-    });
+    },
+  });
 
-    if (userPermission?.id) {
-      if (userPermission.permissions?.length) {
-        const actualPermissions = userPermission.permissions;
+  if (userPermission?.id) {
+    // Existing logic for updating permissions
+    if (userPermission.permissions?.length) {
+      const actualPermissions = userPermission.permissions;
 
-        if (
-          createUserPermissionDto.permissions.some(
-            (permission) => !actualPermissions.includes(permission),
-          )
-        ) {
-          const newPermissions = this.merge(
-            actualPermissions,
-            createUserPermissionDto.permissions,
-          );
+      if (
+        createUserPermissionDto.permissions.some(
+          (permission) => !actualPermissions.includes(permission),
+        )
+      ) {
+        const newPermissions = this.merge(
+          actualPermissions,
+          createUserPermissionDto.permissions,
+        );
 
-          await this.userPermissionRepository.update(userPermission.id, {
-            permissions: newPermissions,
-          });
-        }
-      } else {
         await this.userPermissionRepository.update(userPermission.id, {
-          permissions: createUserPermissionDto.permissions,
+          permissions: newPermissions,
         });
       }
-
-      const updatedUserPermissions =
-        await this.userPermissionRepository.findOne({
-          where: { owner: { id: id } },
-        });
-
-      return new SerializedUserPermissions(
-        <UserPermissionEntity>updatedUserPermissions,
-      );
     } else {
-      const error = new HttpException(
-        `Permission does not exist.`,
-        HttpStatus.BAD_REQUEST,
-      );
+      await this.userPermissionRepository.update(userPermission.id, {
+        permissions: createUserPermissionDto.permissions,
+      });
+    }
+
+    const updatedUserPermissions =
+      await this.userPermissionRepository.findOne({
+        where: { owner: { id: id } },
+      });
+
+    return new SerializedUserPermissions(
+      <UserPermissionEntity>updatedUserPermissions,
+    );
+  } else {
+    // CREATE new permission entity for new users
+    try {
+      const newUserPermission = this.userPermissionRepository.create({
+        owner: { id: id },
+        permissions: createUserPermissionDto.permissions,
+      });
+
+      const savedPermission = await this.userPermissionRepository.save(newUserPermission);
+
+      return new SerializedUserPermissions(savedPermission);
+    } catch (error) {
       this.logger.error(
         {
           function: 'addPermissions',
@@ -85,13 +93,16 @@ export class UserPermissionsService {
           },
           error: error,
         },
-        `Permission does not exist.`,
+        `Failed to create new permission entity: ${error.message}`,
       );
 
-      throw error;
+      throw new HttpException(
+        `Failed to create user permissions.`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
-
+}
   async revokePermissions(
     id: string,
     revokePermissionDto: CreateUserPermissionDto,

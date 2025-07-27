@@ -165,7 +165,7 @@ export class AuthService {
       // Create default permissions for the new user
       await this.userPermissionsService.addPermissions(newUser.id, {
         permissions: ['user'],
-        appName: ['api']
+        appName: ['theluxar']
       });
 
       const accountData = {
@@ -181,8 +181,8 @@ export class AuthService {
       const token = await this.jwtService.signAsync(
         { sub: newUser.id },
         {
-          secret: process.env.EMAIL_TOKEN_SECRET,
-          expiresIn: process.env.EMAIL_TOKEN_EXPIRATION,
+          secret: process.env.ACTIVATION_SECRET,
+          expiresIn: process.env.ACTIVATION_TOKEN_EXPIRATION,
         },
       );
 
@@ -433,7 +433,7 @@ export class AuthService {
       // Create default permissions for the OAuth user
       await this.userPermissionsService.addPermissions(user.id, {
         permissions: ['user'],
-        appName: ['api']
+        appName: ['theluxar']
       });
 
       // Create new account

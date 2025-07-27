@@ -1,4 +1,8 @@
 {
+  "theluxar": {
+    "user": ["user"],
+    "admin": ["ReadUsers", "CreateUser", "UpdateUser", "DeleteUser", "AddPermissions", "RevokePermissions"]
+  },
   "helloHardware": {
     "user": ["ReadUsers", "CreateUser", "UpdateUser", "DeleteUser"],
     "permission": ["AddPermissions", "RevokePermissions"]
